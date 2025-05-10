@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NFG BG REMOVEL TOOLS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #0d0d0d;
+      transition: background-color 0.3s ease;
+    }
+
+    body.light-mode {
+      background-color: #ffffff;
+    }
+
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px 20px;
+      color: white;
+    }
+
+    body.light-mode .container {
+      color: #000;
+    }
+
+    h2, .rgb-text {
+      font-size: 32px;
+      font-weight: bold;
+      background: linear-gradient(270deg, red, orange, yellow, green, cyan, blue, violet);
+      background-size: 1400% 1400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: rainbow 8s ease infinite;
+    }
+
+    @keyframes rainbow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: black;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    footer {
+      margin-top: 30px;
+    }
+
+    footer a.rgb-text {
+      text-decoration: none;
+    }
+
+    .drop-area {
+      border: 2px dashed #888;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #aaa;
+    }
+
+    .drop-area.dragover {
+      background-color: #222;
+    }
+
+    #preview {
+      max-width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #0ff;
+    }
+
+    .loader {
+      display: none;
+      margin: 20px auto;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #555;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 15px #0f0;
+      z-index: 999;
+      animation: fade 3s forwards;
+    }
+
+    @keyframes fade {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .toggle-switch {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="toggle-switch">
+    <button onclick="toggleMode()">Toggle Mode</button>
+  </div>
+
+  <div class="popup" id="popup">Background removed successfully!</div>
+
+  <div id="particles-js"></div>
+
+  <div class="container">
+    <h2>NFG BG REMOVEL TOOLS</h2>
+
+    <div class="drop-area" id="drop-area">
+      Drag & drop image here or click to select
+      <input type="file" id="inputImage" accept="image/*" style="display:none;">
+    </div>
+
+    <img id="preview" src="#" alt="Image Preview" style="display:none;"><br>
+
+    <div class="loader" id="loader"></div>
+    <button onclick="removeBackground()">Remove Background</button><br><br>
+    <div id="output"></div><br>
+
+    <button onclick="shareImage()">Share Image</button>
+
+    <footer>
+      <a href="https://t.me/+74BOvCPJ-4EwNTNl" target="_blank" class="rgb-text">Copyright © by NFG Modder</a>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 60, "density": { "enable": true, "value_area": 800 }},
+        "color": { "value": ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff", "#ff00ff"] },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 10, "random": true },
+        "line_linked": { "enable": false },
+        "move": { "enable": true, "speed": 2, "direction": "top", "random": true, "out_mode": "out" }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": true, "mode": "bubble" },
+          "onclick": { "enable": true, "mode": "repulse" }
+        },
+        "modes": {
+          "bubble": { "distance": 200, "size": 15, "opacity": 0.6, "duration": 2 },
+          "repulse": { "distance": 200, "duration": 0.4 }
+        }
+      },
+      "retina_detect": true
+    });
+
+    const dropArea = document.getElementById('drop-area');
+    const inputImage = document.getElementById('inputImage');
+    const preview = document.getElementById('preview');
+    const loader = document.getElementById('loader');
+    const popup = document.getElementById('popup');
+
+    dropArea.addEventListener('click', () => inputImage.click());
+
+    inputImage.addEventListener('change', handleFile);
+    dropArea.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropArea.classList.add('dragover');
+    });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+    dropArea.addEventListener('drop', e => {
+      e.preventDefault();
+      dropArea.classList.remove('dragover');
+      inputImage.files = e.dataTransfer.files;
+      handleFile();
+    });
+
+    function handleFile() {
+      const file = inputImage.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function removeBackground() {
+      const file = inputImage.files[0];
+      if (!file) return alert("Please select an image.");
+
+      loader.style.display = "block";
+      const formData = new FormData();
+      formData.append("image_file", file);
+      formData.append("size", "auto");
+
+      const response = await fetch("https://api.remove.bg/v1.0/removebg", {
+        method: "POST",
+        headers: { "X-Api-Key": "9kyhgHMag3rxyN9LfNZNgD7a" },
+        body: formData
+      });
+
+      loader.style.display = "none";
+
+      if (!response.ok) {
+        const error = await response.text();
+        alert("Error: " + error);
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      document.getElementById("output").innerHTML = `
+        <h3>Result:</h3>
+        <img src="${url}" style="max-width:100%; border-radius:10px; box-shadow: 0 0 20px lime;"><br><br>
+        <a href="${url}" download="no-bg.png">Download Image</a>
+      `;
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 3000);
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("light-mode");
+    }
+
+    function shareImage() {
+      const img = document.querySelector("#output img");
+      if (img && navigator.share) {
+        navigator.share({
+          title: "Removed Background Image",
+          text: "Check this out!",
+          url: img.src
+        }).catch(err => console.log("Share error:", err));
+      } else {
+        alert("Sharing not supported in this browser.");
+      }
+    }
+  </script>
+</body>
+</html>
